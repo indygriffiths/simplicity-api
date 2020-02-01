@@ -1,14 +1,12 @@
-
 const puppeteer = require('puppeteer');
 const CREDS = require('./creds');
 const USERNAME_SELECTOR = 'input[type=email]'
 const PASSWORD_SELECTOR = 'input[type=password]'
-const BUTTON_SELECTOR = 'div.ui.page-button > button'
-
+const BUTTON_SELECTOR = 'button[type=submit]'
 
 async function run() {
   const browser = await puppeteer.launch({
-    headless: false
+    headless: (process.argv.indexOf("-headless") > -1)
   });
   
   try {
@@ -23,14 +21,14 @@ async function run() {
 
     await page.click(BUTTON_SELECTOR);
 
-    await page.waitFor(5*1000);
+    await page.waitForSelector("text[class*='fundTotal']", { visible: true, timeout: 10 * 1000 });
 
     const result = await page.evaluate(() => {
-      let fundtotal = document.querySelector('text.fund-total').innerHTML;
+      let fundtotal = document.querySelector("text[class*='fundTotal']").innerHTML;
       return fundtotal
-      });
+    });
 
-      console.log(result);
+    console.log(result);
 
     browser.close();
   }
@@ -41,4 +39,3 @@ async function run() {
 }
 
 run();
-
